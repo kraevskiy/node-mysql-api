@@ -6,8 +6,7 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(express.static(path.join(__dirname, 'public')))
-
-
+app.use(express.json())
 app.use('/api', todoRoutes)
 
 app.use((req, res, next) => {
@@ -19,7 +18,7 @@ async function start(){
     await sequelize.sync()
     app.listen(PORT)
   } catch (e) {
-    console.log(e);
+    console.log(e)
   }
 }
 start()
