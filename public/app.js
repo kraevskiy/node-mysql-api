@@ -8,13 +8,23 @@ new Vue({
       todos: []
     }
   },
+  created() {
+    fetch('/api/todo', {
+      method: 'get'
+    })
+      .then(res => res.json())
+      .then(({todos}) => {
+        this.todos = todos
+      })
+      .catch(e => console.log(e))
+  },
   methods: {
     addTodo() {
       const title = this.todoTitle.trim()
       if (!title) {
         return
       }
-      fetch('/api/', {
+      fetch('/api/todo', {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({title})
@@ -28,6 +38,20 @@ new Vue({
     },
     removeTodo(id) {
       this.todos = this.todos.filter(t => t.id !== id)
+    },
+    completeTodo(id) {
+      fetch('/api/todo/' + id, {
+        method: 'put',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({done: true})
+      })
+        .then(res => res.json())
+        .then(({todo}) => {
+          const ind = this.todos.findIndex(t => t.id === todo.id)
+          console.log(todo);
+          this.todos[ind].updatedAt = todo.updatedAt
+        })
+        .catch(e => console.log(e))
     }
   },
   filters: {
@@ -43,8 +67,8 @@ new Vue({
 
       if (withTime) {
         options.hour = '2-digit',
-        options.minute = '2-digit',
-        options.second = '2-digit'
+          options.minute = '2-digit',
+          options.second = '2-digit'
       }
       return new Intl.DateTimeFormat('ru-RU', options).format(new Date(value))
     }
